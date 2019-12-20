@@ -103,11 +103,13 @@ class MenuHasApiAction(Resource):
 
     # 批量添加菜单拥有的接口
     def post(self):
-        from models.menu import MenuHasApi
+        from models.menu import MenuHasApi, Menu
+        from models.api import Api
+
         from app import db
         try:
             menu_id = request.json.get('menu_id')
-            if not self.check_menu(menu_id):
+            if not Menu.check_menu(self.app_id, menu_id):
                 return '权限错误', 400
             now_apis = request.json.get('api_ids')
             result = MenuHasApi.query.with_entities(MenuHasApi.api_id).filter_by(menu_id=menu_id).all()
@@ -118,13 +120,13 @@ class MenuHasApiAction(Resource):
             need_delete = list(set(old_apis) - set(now_apis))
             need_add = list(set(now_apis) - set(old_apis))
             for n in need_add:
-                if self.check_api(n):
+                if Api.check_api(self.app_id, n):
                     m = MenuHasApi()
                     m.menu_id = menu_id
                     m.api_id = n
                     db.session.add(m)
             for d in need_delete:
-                if self.check_api(d):
+                if Api.check_api(self.app_id, d):
                     m = MenuHasApi.query.filter_by(menu_id=menu_id, api_id=d).first()
                     db.session.delete(m)
             db.session.commit()
@@ -132,43 +134,34 @@ class MenuHasApiAction(Resource):
             db.session.rollback()
 
     def get(self):
-        # 根据menu_id查询对应的api_id
-        from models.menu import MenuHasApi
-        from models.utils import model_to_dict
-        menu_id = request.args.get('menu_id')
-        if not self.check_menu(menu_id):
-            return '权限错误', 400
-        dataObj = MenuHasApi.query.filter_by(menu_id=menu_id).all()
-        result = []
-        for d in dataObj:
-            result.append({
-                'menu_id':d.menu_id,
-                'api_id':d.api_id,
-                'menu_name':d.menu.name,
-                'menu_refer_path':d.menu.refer_path,
-                'menu_partent_id':d.menu.parent_id,
-                'api_path':d.api.path,
-                'api_method':d.api.method,
-                'api_remark':d.api.remark,
-            })
-        return result
-
-    def check_menu(self, menu_id):
-        from models.menu import Menu
-        m = Menu.query.get(menu_id)
-        if m is None:
-            return False
-        if m.app_id == self.app_id:
-            return True
-        else:
-            return False
-
-    def check_api(self, api_id):
+        # 根据menu_id查询对应的api_id。
+        # 需返回已分配的，和未分配的API
+        from models.menu import MenuHasApi, Menu
         from models.api import Api
-        a = Api.query.get(api_id)
-        if a is None:
-            return False
-        if a.app_id == self.app_id:
-            return True
-        else:
-            return False
+        returnObj = {}
+        assigned_apis = []
+        not_assigned_apis = []
+        menu_id = request.args.get('menu_id')
+        if not Menu.check_menu(self.app_id, menu_id):
+            return '权限错误', 400
+
+        assigned_apis_in_db = MenuHasApi.query.filter_by(
+            menu_id=menu_id).all()
+        all_apis_in_db = Api.query.filter_by(app_id=self.app_id).all()
+
+        assigned_api_ids = []
+        for a in assigned_apis_in_db:
+            assigned_api_ids.append(a.api_id)
+            assigned_apis.append(
+                {'id': a.api_id, 'path': a.api.path, 'method': a.api.method, 'remark': a.api.remark})
+        assigned_api_ids = set(assigned_api_ids)
+
+        for a in all_apis_in_db:
+            if a.id not in assigned_api_ids:
+                not_assigned_apis.append(
+                    {'id': a.id, 'path': a.path, 'method': a.method, 'remark': a.remark})
+
+        returnObj['not_assigned_apis'] = not_assigned_apis
+        returnObj['assigned_apis'] = assigned_apis
+
+        return returnObj

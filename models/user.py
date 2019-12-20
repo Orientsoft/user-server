@@ -15,6 +15,16 @@ class User(db.Model):
 
     app = db.relationship('App')
 
+    @staticmethod
+    def check_user(app_id, user_id):
+        a = User.query.get(user_id)
+        if a is None:
+            return False
+        if a.app_id == app_id:
+            return True
+        else:
+            return False
+
 
 class UserHasRole(db.Model):
     __tablename__ = 'user_has_role'

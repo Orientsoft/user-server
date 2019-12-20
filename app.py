@@ -6,7 +6,7 @@ from flask_restful import Api
 from applications.app_manage import Login,Logout,Register,SendCode
 from applications.menu_manage import MenuAction,ParentMenuAction,MenuHasApiAction
 from applications.api_manage import ApiAction
-from applications.user_manage import UserAction
+from applications.user_manage import UserAction,UserHasRoleAction
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -24,6 +24,7 @@ api.add_resource(ParentMenuAction,'/parent/menu')
 api.add_resource(MenuHasApiAction,'/menu/auth')
 api.add_resource(ApiAction,'/api')
 api.add_resource(UserAction,'/user')
+api.add_resource(UserHasRoleAction,'/user/auth')
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'], host=app.config['HOST'], port=app.config['PORT'],

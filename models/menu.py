@@ -11,6 +11,7 @@ class ParentMenu(db.Model):
 
     app = db.relationship('App')
 
+
 class Menu(db.Model):
     __tablename__ = 'menu'
 
@@ -23,6 +24,15 @@ class Menu(db.Model):
     app = db.relationship('App')
     parent = db.relationship('ParentMenu')
 
+    @staticmethod
+    def check_menu(app_id, menu_id):
+        m = Menu.query.get(menu_id)
+        if m is None:
+            return False
+        if m.app_id == app_id:
+            return True
+        else:
+            return False
 
 class MenuHasApi(db.Model):
     __tablename__ = 'menu_has_api'
