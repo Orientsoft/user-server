@@ -26,6 +26,9 @@ class Menu(db.Model):
 
 class MenuHasApi(db.Model):
     __tablename__ = 'menu_has_api'
+    __table_args__ = (
+        db.Index('ue_menuid_apiid', 'menu_id', 'api_id', unique=True),
+    )
 
     menu_id = db.Column(db.ForeignKey('menu.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
     api_id = db.Column(db.ForeignKey('api.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)

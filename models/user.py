@@ -1,6 +1,7 @@
 # coding: utf-8
 from app import db
 
+
 class User(db.Model):
     __tablename__ = 'user'
 
@@ -15,7 +16,6 @@ class User(db.Model):
     app = db.relationship('App')
 
 
-
 class UserHasRole(db.Model):
     __tablename__ = 'user_has_role'
 
@@ -25,7 +25,3 @@ class UserHasRole(db.Model):
 
     role = db.relationship('Role')
     user = db.relationship('User')
-
-
-
-
