@@ -34,6 +34,7 @@ class Menu(db.Model):
         else:
             return False
 
+
 class MenuHasApi(db.Model):
     __tablename__ = 'menu_has_api'
     __table_args__ = (
@@ -46,3 +47,15 @@ class MenuHasApi(db.Model):
 
     api = db.relationship('Api')
     menu = db.relationship('Menu')
+
+    @staticmethod
+    def get_api(menu_id):
+        apis = []
+        try:
+            result = MenuHasApi.query.with_entities(MenuHasApi.api_id).filter_by(menu_id=menu_id).all()
+            for r in result:
+                apis.append(str(r[0]))
+        except:
+            pass
+        finally:
+            return apis

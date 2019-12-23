@@ -78,10 +78,7 @@ class UserHasRoleAction(Resource):
             if not User.check_user(self.app_id, user_id):
                 return '权限错误', 400
             now_roles = request.json.get('role_ids')
-            result = UserHasRole.query.with_entities(UserHasRole.role_id).filter_by(user_id=user_id).all()
-            old_roles = []
-            for r in result:
-                old_roles.append(str(r[0]))
+            old_roles = UserHasRole.get_role(user_id)
             need_delete = list(set(old_roles) - set(now_roles))
             need_add = list(set(now_roles) - set(old_roles))
             for n in need_add:

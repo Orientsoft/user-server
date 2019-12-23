@@ -35,3 +35,15 @@ class UserHasRole(db.Model):
 
     role = db.relationship('Role')
     user = db.relationship('User')
+
+    @staticmethod
+    def get_role(user_id):
+        roles = []
+        try:
+            result = UserHasRole.query.with_entities(UserHasRole.role_id).filter_by(user_id=user_id).all()
+            for r in result:
+                roles.append(str(r[0]))
+        except:
+            pass
+        finally:
+            return roles

@@ -112,11 +112,7 @@ class MenuHasApiAction(Resource):
             if not Menu.check_menu(self.app_id, menu_id):
                 return '权限错误', 400
             now_apis = request.json.get('api_ids')
-            result = MenuHasApi.query.with_entities(MenuHasApi.api_id).filter_by(menu_id=menu_id).all()
-            old_apis = []
-            for r in result:
-                print(r)
-                old_apis.append(str(r[0]))
+            old_apis = MenuHasApi.get_api(menu_id)
             need_delete = list(set(old_apis) - set(now_apis))
             need_add = list(set(now_apis) - set(old_apis))
             for n in need_add:

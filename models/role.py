@@ -32,6 +32,18 @@ class RoleHasApi(db.Model):
     api = db.relationship('Api')
     role = db.relationship('Role')
 
+    @staticmethod
+    def get_api(role_id):
+        apis = []
+        try:
+            result = RoleHasApi.query.with_entities(RoleHasApi.api_id).filter_by(role_id=role_id).all()
+            for r in result:
+                apis.append(str(r[0]))
+        except:
+            pass
+        finally:
+            return apis
+
 
 class RoleHasMenu(db.Model):
     __tablename__ = 'role_has_menu'
@@ -42,3 +54,15 @@ class RoleHasMenu(db.Model):
 
     menu = db.relationship('Menu')
     role = db.relationship('Role')
+
+    @staticmethod
+    def get_menu(role_id):
+        menus = []
+        try:
+            result = RoleHasMenu.query.with_entities(RoleHasMenu.api_id).filter_by(role_id=role_id).all()
+            for r in result:
+                menus.append(str(r[0]))
+        except:
+            pass
+        finally:
+            return menus
