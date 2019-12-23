@@ -7,7 +7,7 @@ class User(db.Model):
 
     id = db.Column(db.String(32), primary_key=True)
     name = db.Column(db.String(45), unique=True)
-    password = db.Column(db.String(45))
+    password = db.Column(db.String(200))
     remark = db.Column(db.String(200))
     createdAt = db.Column(db.DateTime)
     lastLogin = db.Column(db.DateTime)

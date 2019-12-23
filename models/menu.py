@@ -55,7 +55,7 @@ class MenuHasApi(db.Model):
             result = MenuHasApi.query.with_entities(MenuHasApi.api_id).filter_by(menu_id=menu_id).all()
             for r in result:
                 apis.append(str(r[0]))
-        except:
+        except Exception as e:
             pass
         finally:
             return apis

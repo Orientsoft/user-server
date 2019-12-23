@@ -61,7 +61,7 @@ class RoleHasApiAction(Resource):
 
         from app import db
         try:
-            role_id = request.json.get('role_id')
+            role_id = request.json.get('id')
             if not Role.check_role(self.app_id, role_id):
                 return '权限错误', 400
             now_apis = request.json.get('api_ids')
@@ -90,7 +90,7 @@ class RoleHasApiAction(Resource):
         returnObj = {}
         assigned_apis = []
         not_assigned_apis = []
-        role_id = request.args.get('role_id')
+        role_id = request.args.get('id')
         if not Role.check_role(self.app_id, role_id):
             return '权限错误', 400
 
@@ -127,7 +127,7 @@ class RoleHasMenuAction(Resource):
 
         from app import db
         try:
-            role_id = request.json.get('role_id')
+            role_id = request.json.get('id')
             if not Role.check_role(self.app_id, role_id):
                 return '权限错误', 400
             now_menus = request.json.get('menu_ids')
@@ -169,7 +169,7 @@ class RoleHasMenuAction(Resource):
         returnObj = {}
         assigned_menus = []
         not_assigned_menus = []
-        role_id = request.args.get('role_id')
+        role_id = request.args.get('id')
         if not Role.check_role(self.app_id, role_id):
             return '权限错误', 400
 
@@ -180,14 +180,24 @@ class RoleHasMenuAction(Resource):
         assigned_menu_ids = []
         for a in assigned_menus_in_db:
             assigned_menu_ids.append(a.menu_id)
-            assigned_menus.append(
-                {'id': a.menu_id, 'name': a.menu.name, 'refer_path': a.menu.refer_path, 'remark': a.menu.parent_id})
+            assigned_menus.append({
+                'id': a.menu_id,
+                'name': a.menu.name,
+                'refer_path': a.menu.refer_path,
+                'parent_id':a.menu.parent_id,
+                'parent_name':a.menu.parent.name if a.menu.parent else ''
+            })
         assigned_menu_ids = set(assigned_menu_ids)
 
         for a in all_menus_in_db:
             if a.id not in assigned_menu_ids:
-                not_assigned_menus.append(
-                    {'id': a.id, 'name': a.name, 'refer_path': a.refer_path, 'parent_id': a.parent_id,'parent_name':a.parent.name})
+                not_assigned_menus.append({
+                    'id': a.id,
+                    'name': a.name,
+                    'refer_path': a.refer_path,
+                    'parent_id': a.parent_id,
+                    'parent_name':a.parent.name if a.parent else ''
+                })
 
         returnObj['not_assigned_menus'] = not_assigned_menus
         returnObj['assigned_menus'] = assigned_menus

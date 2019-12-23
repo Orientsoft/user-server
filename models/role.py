@@ -59,10 +59,22 @@ class RoleHasMenu(db.Model):
     def get_menu(role_id):
         menus = []
         try:
-            result = RoleHasMenu.query.with_entities(RoleHasMenu.api_id).filter_by(role_id=role_id).all()
+            result = RoleHasMenu.query.with_entities(RoleHasMenu.menu_id).filter_by(role_id=role_id).all()
             for r in result:
                 menus.append(str(r[0]))
         except:
             pass
         finally:
             return menus
+
+    @staticmethod
+    def get_role(menu_id):
+        roles = []
+        try:
+            result = RoleHasMenu.query.with_entities(RoleHasMenu.role_id).filter_by(menu_id=menu_id).all()
+            for r in result:
+                roles.append(str(r[0]))
+        except:
+            pass
+        finally:
+            return roles

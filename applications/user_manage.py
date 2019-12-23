@@ -3,6 +3,7 @@ from flask import request, session
 from flask_restful import Resource
 import datetime
 import hashlib
+import uuid
 
 
 class UserAction(Resource):
@@ -14,6 +15,7 @@ class UserAction(Resource):
         from app import db
         a = User()
         a.app_id = self.app_id
+        a.id = uuid.uuid1().hex
         a.name = request.json.get('name')
         a.password = hashlib.sha256(request.json.get('password').strip().encode('utf8')).hexdigest()
         a.remark = request.json.get('remark', None)
@@ -30,8 +32,8 @@ class UserAction(Resource):
                 "id": d.id,
                 "name": d.name,
                 "remark": d.remark,
-                "createAt": d.createAt,
-                "lastLogin": d.lastLogin
+                "createdAt": d.createdAt.strftime('%Y-%m-%d %H:%M:%S') if isinstance(d.createdAt,datetime.datetime) else d.createdAt,
+                "lastLogin": d.lastLogin.strftime('%Y-%m-%d %H:%M:%S') if isinstance(d.lastLogin,datetime.datetime) else d.lastLogin
             })
         return result
 
@@ -103,7 +105,7 @@ class UserHasRoleAction(Resource):
         returnObj = {}
         assigned_roles = []
         not_assigned_roles = []
-        user_id = request.args.get('user_id')
+        user_id = request.args.get('id')
         if not User.check_user(self.app_id, user_id):
             return '权限错误', 400
         assigned_roles_in_db = UserHasRole.query.filter_by(
